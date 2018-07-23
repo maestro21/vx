@@ -1,0 +1,10 @@
+*.zip
+settings.php
+todo.txt
+data
+.idea
+data/default.globals.php
+data/cache/modules.php
+data/cache/system.php
+data/default.globals.php
+front/style.css

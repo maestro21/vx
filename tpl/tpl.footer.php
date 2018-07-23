@@ -1,0 +1,1 @@
+&copy; <?php echo date('Y');?> <a href="<?php echo BASE_URL;?>"><?php echo G('sitename');?></a> | Developed by <a href="http://maestro-studio.net" target="_blank">Maestro Studio</a>
