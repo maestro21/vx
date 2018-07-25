@@ -10,8 +10,8 @@ foreach($fields as $key => $field) {
 	$required = (@$field['required'] > 0);
 	$uid = arr2line($prefix) . '-'. $key;
 
-	Vdata($name, $value);
-print_r($value);
+	data($name, $value);
+//print_r($value);
 	switch ($widget) {
 
 		case WIDGET_TABS: ?>
