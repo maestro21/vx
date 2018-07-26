@@ -23,6 +23,43 @@ class controller {
       'del' => 'admin',
     ];
 
+
+    public $methods = [
+        'get' => ['list', 'view'],
+        'post' => ['save'],
+        'delete' => ['del']
+    ];
+
+    /*
+     * To call api style
+     */
+    public function api() {
+      $request = server('REQUEST_METHOD');
+      $this->id = id();
+      if(in_array(id(), $this->methods[$request]) {
+        $method = id();
+        $this->id = path(3);
+      }
+
+      $method = $this->methods[$request][0];
+      $parse = null;
+      switch($request) {
+        case GET:
+          $parse = self::PARSE_FULL;
+          if(id()) $method = 'view';
+          $data = get();
+        break;
+        case POST: $data = post();
+      }
+
+      $output = $this->call($method, $data, $parse);
+      if(!$output) {
+        redirect();
+      }
+      return $output;
+    }
+
+
     /**
      * One and only legit way to call any method
      */
@@ -38,12 +75,13 @@ class controller {
         if($data) {
             $this->data = $data;
         }
-        $this->id = $this->data['id'] ?? data('id') ?? null;
+        $this->id = $this->id ?? $this->data['id'] ?? data('id') ?? null;
 
         $data = $this->$method();
+        $this->parse = $parse ?? $this->parse ?? self::PARSE_JSON;
         $this->data = null;
 
-        return $this->parse($return, $parse);
+        return $this->parse($return, $this->parse);
     }
 
     protected function parse($data, $mode) {
@@ -54,8 +92,10 @@ class controller {
 
         case self::PARSE_VIEW:
             $data = view($this->cl . '/' . $this->view, $data);
+            break;
 
         case self::PARSE_FULL:
+            $data = view($this->cl . '/' . $this->view, $data);
             $data = tpl('main', ['content' => $data, 'class' => $this->cl ]);
             break;
       }

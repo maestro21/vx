@@ -12,11 +12,14 @@ function model($path) {
   $filepath = BASE_PATH . 'modules/' . $module . '/' . $module . ' .model.' . $model . '.php';
   if(file_exists($filepath)) {
     require_once($filepath);
-    return new {$model . 'Controller'}();
+    return new {$model . 'Model'}();
   }
   return null;
 }
 
+/**
+ * View
+ */
 function view($path, $data = array()){
   $path = explode('/', $path);
   $module = $path[0];
@@ -45,7 +48,9 @@ function view($path, $data = array()){
 }
 
 
-
+/**
+ * Controller
+ */
 function controller($path) {
   $path = explode('/', $path);
   $module = $path[0];

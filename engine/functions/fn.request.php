@@ -118,11 +118,11 @@ function path($key = null) {
 }
 
 
-function cl() {
+function lang() {
     return path(0);
 }
 
-function fn() {
+function module() {
     return path(1);
 }
 
@@ -130,25 +130,14 @@ function id() {
     return path(2);
 }
 
-function page() {
-    return path(3);
-}
 
-function search() {
-    return path(4);
-}
-
-
-
-
+$_PATH = [];
 function route() {
-    global $_SERVER, $_GET;
-
+    global $_SERVER, $_PATH;
     $vars = explode('?', $_SERVER['REQUEST_URI']);
     $path = trim(str_replace(HOST_FOLDER, '', $vars[0]), '/');
     $path = mapping($path);
     $_PATH = explode('/', $path);
-    return $_PATH;
 }
 
 function mapping($path) { return $path;
@@ -168,74 +157,21 @@ function S($name, $value = NULL) {
     return (isset($_SESSION[$name]) ? $_SESSION[$name] : NULL);
 }
 
-function render() {
-    global $_PATH;
-    //print_r($_PATH);
-    $module = cl();
-
-
-    if($module == 'filter'){ filter(path(1), path(2)); }
-
+function processRequest() {
+    route();
+    if(module() == 'filter'){ filter(path(1), path(2)); }
     /* lang settings */
-    G('langs', cache('langs'));
-    $langs = langs();
-    $lang = lang();
-    if($lang != $module) {
-        lang($module);
-    }
-    S('labels', cache('i18n'));
-
-    $module = M($module);
-    if(!$module) $module = M(G('defmodule'));
-    if(!$module) $module = M(DEFMODULE);
-    if(!$module) return FALSE;
-
-    $method = path(1) ?? $module->defmethod; 
-
-    $output = call($module, $method);
-
-    if($module->parse == P_FULL) {
-        echo tpl('main', array(
-                'content' => $output,
-                'class' => $module,
-                'wrap' => $module->wrap
-            )
-        );
-        die();
-    }
-    echo $output;
-    die();
-}
-
-
-/**
- * Function for calling any class and method. ANY method and class MUST be called via this function  * rather than using direct class&method calls
- * @mixed 	module - module to call. REQUIRED
- * @string	method - method to call. REQUIRED
- * @array	params - module parameters like parse, id, cl, data, etc.
- * @return	mixed  - data to pass to method
- **/
-function call($module, $method, $params = null) {
-    /** checking module **/
-    if(!isset($module)) return FALSE;
-    if(is_a($module, 'masterdb')) {
-        $M = $module;
+    G('langs', cache('langs'))
+    loadTextLabels();
+    $controller = module() . '/' . id();
+    $controller = controller($controller));
+    if($controller) {
+      id(path(3));
     } else {
-        $M = M($module);
-        if(!$M) return FALSE;
+      $controller = controller(module());
     }
-
-    /** checking method **/
-    if(!method_exists($M, $method)) {
-        $method = $M->method = $M->defmethod;
+    if(!$controller) {
+      redirect();
     }
-
-    /** TODO: IMPLEMENT RIGHTS CHECK **/
-
-    $M->tpl = $method;
-
-    /** FINALLY - CALLING METHOD **/
-
-    $M->data = (isset($params) ? $M->$method($params) : $M->$method());
-    return $M->render();
+    echo $controller->api();
 }
